@@ -49,6 +49,7 @@ public class PythonProxy implements ModInitializer {
 		client.player.move(MovementType.PLAYER, new Vec3d(delta_x, delta_y, delta_z));
 	}
 
+	@SuppressWarnings("unused")
 	public String movePlayerAI(int dest_x, int dest_y, int dest_z) throws InterruptedException {
 		MinecraftClient client = MinecraftClient.getInstance();
 
