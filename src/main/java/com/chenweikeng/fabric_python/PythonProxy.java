@@ -72,7 +72,7 @@ public class PythonProxy implements ModInitializer {
 
 		int stepCountMax = 20;
 		int stepCount = 0;
-		while(stepCount++ < stepCountMax && client.player.getPos().distanceTo(new Vec3d(dest_x, dest_y, dest_z)) > 4.00){
+		while(stepCount++ < stepCountMax && client.player.getPos().distanceTo(new Vec3d(dest_x, dest_y, dest_z)) > 1.00){
 			int rangeOfViewableWorld = 100 + 16;
 			BlockPos playerBlockPos = client.player.getBlockPos();
 			fakePlayerMob.copyPlayer(client.player);
@@ -124,6 +124,19 @@ public class PythonProxy implements ModInitializer {
 	public Integer[] getPlayerLocation(){
 		ClientPlayerEntity player = MinecraftClient.getInstance().player;
 		return new Integer[] {(int)player.x, (int)player.y, (int)player.z};
+	}
+
+	@SuppressWarnings("unused")
+	public void sendChatMessage(String message) {
+		ClientPlayerEntity player = MinecraftClient.getInstance().player;
+		player.sendChatMessage(message);
+	}
+
+	@SuppressWarnings("unused")
+	public void changePlayerPosition(float yaw_360, float pitch_360){
+		ClientPlayerEntity player = MinecraftClient.getInstance().player;
+		player.yaw = MathHelper.clamp(yaw_360, -180.0F, 180.0F);
+		player.pitch = MathHelper.clamp(pitch_360, -90.0F, 90.0F);
 	}
 
 	@SuppressWarnings("unused")
