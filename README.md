@@ -14,4 +14,16 @@ pp.movePlayer(1, 0, 0)
 pp.movePlayerAI(246, 73, -63)
 pp.getPlayerLocation()
 pp.blockSearch(146, 88, -62, 207, 88, -1, "minecraft:spruce_log")
+
+# use case in a specific Minecraft server with advanced furnace
+import csv
+import time
+csvfile = open("E:\\ai\\adv_furnace.txt", newline='')
+loc = csv.reader(csvfile)
+for row in loc:
+  if len(row) > 3:
+    pp.movePlayerAI(int(row[1]), int(row[2]), int(row[3]))
+    pp.changePlayerPosition(0.0,90.0)
+    pp.sendChatMessage("/adv_furnace getmoney")
+    time.sleep(1)
 ```
