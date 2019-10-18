@@ -12,4 +12,6 @@ pp = gateway.entry_point
 pp.sendMessageToPlayer("Connected")
 pp.movePlayer(1, 0, 0)
 pp.movePlayerAI(246, 73, -63)
+pp.getPlayerLocation()
+pp.blockSearch(146, 88, -62, 207, 88, -1, "minecraft:spruce_log")
 ```

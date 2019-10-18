@@ -30,6 +30,8 @@ public class FakePlayerMob extends AmbientEntity {
 		this.x = player.x;
 		this.y = player.y;
 		this.z = player.z;
+		this.yaw = player.yaw;
+		this.noClip = player.noClip;
 		this.onGround = player.onGround;
 		this.stepHeight = player.stepHeight;
 		this.setMovementSpeed(player.getMovementSpeed());

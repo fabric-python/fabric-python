@@ -5,7 +5,11 @@ import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.client.keybinding.FabricKeyBinding;
 import net.fabricmc.fabric.api.event.client.ClientTickCallback;
 import net.fabricmc.fabric.impl.client.keybinding.KeyBindingRegistryImpl;
+import net.minecraft.block.Block;
+import net.minecraft.block.BlockState;
+import net.minecraft.block.Blocks;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.util.InputUtil;
 import net.minecraft.entity.MovementType;
 import net.minecraft.entity.ai.pathing.LandPathNodeMaker;
@@ -17,11 +21,15 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.registry.Registry;
 import net.minecraft.world.ViewableWorld;
 import net.minecraft.world.chunk.ChunkCache;
 import org.lwjgl.glfw.GLFW;
 import py4j.GatewayServer;
 
+import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 @SuppressWarnings("unused")
@@ -64,7 +72,7 @@ public class PythonProxy implements ModInitializer {
 
 		int stepCountMax = 20;
 		int stepCount = 0;
-		while(stepCount++ < stepCountMax && (client.player.getPos().distanceTo(new Vec3d(dest_x, dest_y, dest_z)) > 8.00 || Math.abs(client.player.getPos().y - dest_y) >= 1)){
+		while(stepCount++ < stepCountMax && client.player.getPos().distanceTo(new Vec3d(dest_x, dest_y, dest_z)) > 4.00){
 			int rangeOfViewableWorld = 100 + 16;
 			BlockPos playerBlockPos = client.player.getBlockPos();
 			fakePlayerMob.copyPlayer(client.player);
@@ -75,40 +83,76 @@ public class PythonProxy implements ModInitializer {
 				break;
 			}
 
-			Vec3d delta;
-			Vec3d old_cur = client.player.getPos();
-			int flag = 0;
-			while(path.getCurrentNodeIndex() < path.getLength() && flag != 2) {
-				Vec3d cur = client.player.getPos();
-
+			Vec3d dest = client.player.getPos();
+			while(path.getCurrentNodeIndex() < path.getLength()) {
 				Vec3d next = path.getCurrentPosition();
-				path.setCurrentNodeIndex(path.getCurrentNodeIndex() + 1);
-
-				while(next.distanceTo(cur) > 1){
-					cur = client.player.getPos();
-					if(flag == 1 && old_cur.distanceTo(cur) < 1){
-						flag = 2;
-						break;
-					}
-					old_cur = cur;
-					flag = 1;
-
-					delta = next.subtract(cur);
-					if(delta.lengthSquared() > 80){
-						double suppress = Math.sqrt(delta.lengthSquared() / 80);
-						delta = new Vec3d(delta.x / suppress, delta.y / suppress, delta.z / suppress);
-					}
-
+				if(next.distanceTo(client.player.getPos()) < 10){
+					dest = next;
+					path.setCurrentNodeIndex(path.getCurrentNodeIndex() + 1);
+				}else{
+					Vec3d delta = dest.subtract(client.player.getPos());
 					result = String.format("%snext step: %f %f %f\n", result, delta.x, delta.y, delta.z);
-					Vec3d cur_dest = cur.add(delta);
+
+					client.player.setJumping(true);
+					client.player.setYaw(changeAngle(client.player.yaw, (float)(MathHelper.atan2(delta.z, delta.x) * 57.2957763671875D) - 90.0F, 90.0F));
 					client.player.move(MovementType.PLAYER, delta);
+					client.player.setJumping(false);
+
 					TimeUnit.MILLISECONDS.sleep(100);
 
-					cur = client.player.getPos();
+					if(dest.distanceTo(client.player.getPos()) > 4){
+						break;
+					}
 				}
+			}
+
+			if(dest.distanceTo(client.player.getPos()) > 1){
+				Vec3d delta = dest.subtract(client.player.getPos());
+				result = String.format("%sfinal step: %f %f %f\n", result, delta.x, delta.y, delta.z);
+
+				client.player.setJumping(true);
+				client.player.setYaw(changeAngle(client.player.yaw, (float)(MathHelper.atan2(delta.z, delta.x) * 57.2957763671875D) - 90.0F, 90.0F));
+				client.player.move(MovementType.PLAYER, delta);
+				client.player.setJumping(false);
+				TimeUnit.MILLISECONDS.sleep(100);
 			}
 		}
 		return result;
+	}
+
+	@SuppressWarnings("unused")
+	public Integer[] getPlayerLocation(){
+		ClientPlayerEntity player = MinecraftClient.getInstance().player;
+		return new Integer[] {(int)player.x, (int)player.y, (int)player.z};
+	}
+
+	@SuppressWarnings("unused")
+	public List<Integer[]> blockSearch(int start_x, int start_y, int start_z, int end_x, int end_y, int end_z, String typename) throws NoSuchFieldException, IllegalAccessException {
+		Block target_block = (Block) Registry.BLOCK.get(new Identifier(typename));
+		if(target_block == null){
+			return new ArrayList<Integer[]>();
+		}
+
+		ClientPlayerEntity player = MinecraftClient.getInstance().player;
+
+		List<Integer[]> list = new ArrayList<Integer[]>();
+
+		if(end_x < start_x) end_x = start_x;
+		if(end_y < start_y) end_y = start_y;
+		if(end_z < start_z) end_z = start_z;
+
+		for(int i = start_x; i <= end_x; i++){
+			for(int j = start_y; j <= end_y; j++){
+				for(int k = start_z; k <= end_z; k++){
+					BlockState bst = player.world.getBlockState(new BlockPos(i, j, k));
+					if(bst.getBlock() == target_block){
+						list.add(new Integer[] {i, j, k});
+					}
+				}
+			}
+		}
+
+		return list;
 	}
 
 	@Override
@@ -135,5 +179,25 @@ public class PythonProxy implements ModInitializer {
 				pp.lastHotKeyShowAuthToken = curUnixTime;
 			}
 		});
+	}
+
+	float changeAngle(float float_1, float float_2, float float_3) {
+		float float_4 = MathHelper.wrapDegrees(float_2 - float_1);
+		if (float_4 > float_3) {
+			float_4 = float_3;
+		}
+
+		if (float_4 < -float_3) {
+			float_4 = -float_3;
+		}
+
+		float float_5 = float_1 + float_4;
+		if (float_5 < 0.0F) {
+			float_5 += 360.0F;
+		} else if (float_5 > 360.0F) {
+			float_5 -= 360.0F;
+		}
+
+		return float_5;
 	}
 }
