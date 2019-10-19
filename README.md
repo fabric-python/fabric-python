@@ -2,20 +2,58 @@
 
 This mod is basically loading Fabric-MC and py4j and therefore provides an interface for Python -- a language with wide adoption in data science -- to opearte on the Minecraft client.
 
-### Example: Python-side script
+## API Example Python-side script
+
+### Initializing the connection
+
 ```
 from py4j.java_gateway import JavaGateway, GatewayParameters
 params = GatewayParameters(auth_token="insecure")
 gateway = JavaGateway(gateway_parameters=params)
 pp = gateway.entry_point
+```
 
+### Sending message to the player oneself
+```
 pp.sendMessageToPlayer("Connected")
-pp.movePlayer(1, 0, 0)
-pp.movePlayerAI(246, 73, -63)
-pp.getPlayerLocation()
-pp.blockSearch(146, 88, -62, 207, 88, -1, "minecraft:spruce_log")
+```
 
-# use case in a specific Minecraft server with advanced furnace
+### Sending a chat message
+```
+pp.sendChatMessage("hi!")
+```
+
+### Moving the player for a short distance (distance limited to 10)
+```
+/* move the player from (x,y,z) to (x+1,y,z) */
+pp.movePlayer(1, 0, 0)
+```
+
+### Moving the player for a long distance, assisted by AI
+```
+/* move the player from (x,y,z) to (246,73,-63) */
+pp.movePlayerAI(246, 73, -63)
+```
+
+### Obtaining the current player's location
+```
+pp.getPlayerLocation()
+```
+
+### Searching the positons of blocks of a specific type
+```
+pp.blockSearch(146, 88, -62, 207, 88, -1, "minecraft:spruce_sapling")
+```
+
+### Moving specific items to the main hand
+```
+pp.switchItem("minecraft:spruce_sapling")
+```
+
+## Example applications
+
+### Use case in a specific Minecraft server with advanced furnace
+```
 import csv
 import time
 csvfile = open("E:\\ai\\adv_furnace.txt", newline='')
@@ -26,4 +64,86 @@ for row in loc:
     pp.changePlayerPosition(0.0,90.0)
     pp.sendChatMessage("/adv_furnace getmoney")
     time.sleep(1)
+```
+
+### Use case in a specific Minecraft server with QuickShop and an shulker box unloading machine
+```
+time.sleep(5)
+for i in range(10):
+  pp.useBlock(-29178,72, 162)
+  time.sleep(3)
+  pp.useBlock(-29178,72, 162)
+  time.sleep(3)
+  pp.attackBlock(-29184, 70, 166)
+  time.sleep(1)
+  pp.sendChatMessage("2304")
+```
+
+### Use case to plant trees in a paved tree farm with preconfigured paramters
+```
+import time
+def do_one(pos):
+  i = pos % 21
+  j = pos // 21
+  if i == 0:
+    if j != 0:
+      pp.movePlayer(0, 0, 2)
+  x = 146 + i * 3
+  z = -62 + j * 3
+  sapling_planted = len(pp.blockSearch(x, 88, z, x + 1, 88, z +1, "minecraft:spruce_log")) + len(pp.blockSearch(x, 88, z, x + 1, 88, z +1, "minecraft:spruce_sapling"))
+  if sapling_planted == 4:
+     return 1
+  cur_pos = pp.getPlayerLocation()
+  cur_x = cur_pos[0]
+  if cur_x < x:
+    pp.movePlayerAI(x + 1, 88, z + 1)
+  else:
+    pp.movePlayerAI(x - 1, 88, z + 1)
+  if i == 0:
+    if j != 0:
+      time.sleep(1)
+  time.sleep(0.5)
+  res = pp.switchItem("minecraft:spruce_sapling")
+  if res == "Failure":
+     return 0
+  time.sleep(0.4)
+  res = pp.useBlock(x, 87, z)
+  if res == "Failure":
+     return 0
+  time.sleep(0.4)
+  res = pp.switchItem("minecraft:spruce_sapling")
+  if res == "Failure":
+     return 0
+  time.sleep(0.4)
+  res = pp.useBlock(x + 1, 87, z)
+  if res == "Failure":
+     return 0
+  time.sleep(0.4)
+  res = pp.switchItem("minecraft:spruce_sapling")
+  if res == "Failure":
+     return 0
+  time.sleep(0.4)
+  res = pp.useBlock(x, 87, z + 1)
+  if res == "Failure":
+     return 0
+  time.sleep(0.4)
+  res = pp.switchItem("minecraft:spruce_sapling")
+  if res == "Failure":
+     return 0
+  res = pp.useBlock(x + 1, 87, z + 1)
+  if res == "Failure":
+     return 0
+  sapling_planted = len(pp.blockSearch(x, 88, z, x + 1, 88, z +1, "minecraft:spruce_log")) + len(pp.blockSearch(x, 88, z, x + 1, 88, z +1, "minecraft:spruce_sapling"))
+  if sapling_planted != 4:
+     return 0
+  return 1
+
+def do_rest(start_pos):
+  for i in range(start_pos, 441):
+    if do_one(i) == 0:
+       print("Failed at " + str(i))
+       break
+
+do_rest(0)
+
 ```
