@@ -50,6 +50,16 @@ pp.blockSearch(146, 88, -62, 207, 88, -1, "minecraft:spruce_sapling")
 pp.switchItem("minecraft:spruce_sapling")
 ```
 
+### Attacking a block ("left-click")
+```
+pp.attackBlock(-29184, 70, 166)
+```
+
+### Using an item on a block ("right-click")
+```
+pp.useBlock(-29178,72, 162)
+```  
+
 ## Example applications
 
 ### Use case in a specific Minecraft server with advanced furnace
