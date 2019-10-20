@@ -89,7 +89,7 @@ for i in range(10):
   pp.sendChatMessage("2304")
 ```
 
-### Use case to plant trees in a paved tree farm with preconfigured paramters
+### Use case to plant trees in a paved tree farm with preconfigured paramters (paramter 1)
 ```
 import time
 def do_one(pos):
@@ -156,6 +156,81 @@ def do_one(pos):
 
 def do_rest(start_pos):
   for i in range(start_pos, 16 * 9):
+    if do_one(i) == 0:
+       print("Failed at " + str(i))
+       break
+
+do_rest(0)
+
+```
+
+### Use case to plant trees in a paved tree farm with preconfigured paramters (paramter 2)
+```
+import time
+def do_one(pos):
+  dirt_level = 87
+  x_gap = 3
+  z_gap = 3
+  x_row = 21
+  x_start = 146
+  z_start = -62
+  i = pos % x_row
+  j = pos // x_row
+  if i == 0:
+    if j != 0:
+      pp.movePlayer(0, 0, 2)
+  x = x_start+ i * x_gap
+  z = z_start + j * z_gap
+  sapling_planted = len(pp.blockSearch(x, dirt_level + 1, z, x + 1, dirt_level + 1, z +1, "minecraft:spruce_log")) + len(pp.blockSearch(x, dirt_level + 1, z, x + 1, dirt_level + 1, z +1, "minecraft:spruce_sapling"))
+  if sapling_planted == 4:
+     return 1
+  cur_pos = pp.getPlayerLocation()
+  cur_x = cur_pos[0]
+  if cur_x < x:
+    pp.movePlayerAI(x + 1, dirt_level + 1, z + 1)
+  else:
+    pp.movePlayerAI(x - 1, dirt_level + 1, z + 1)
+  if i == 0:
+    if j != 0:
+      time.sleep(1)
+  time.sleep(0.5)
+  res = pp.switchItem("minecraft:spruce_sapling")
+  if res == "Failure":
+     return 0
+  time.sleep(0.4)
+  res = pp.useBlock(x, dirt_level, z)
+  if res == "Failure":
+     return 0
+  time.sleep(0.4)
+  res = pp.switchItem("minecraft:spruce_sapling")
+  if res == "Failure":
+     return 0
+  time.sleep(0.4)
+  res = pp.useBlock(x + 1, dirt_level, z)
+  if res == "Failure":
+     return 0
+  time.sleep(0.4)
+  res = pp.switchItem("minecraft:spruce_sapling")
+  if res == "Failure":
+     return 0
+  time.sleep(0.4)
+  res = pp.useBlock(x, dirt_level, z + 1)
+  if res == "Failure":
+     return 0
+  time.sleep(0.4)
+  res = pp.switchItem("minecraft:spruce_sapling")
+  if res == "Failure":
+     return 0
+  res = pp.useBlock(x + 1, dirt_level, z + 1)
+  if res == "Failure":
+     return 0
+  sapling_planted = len(pp.blockSearch(x, dirt_level + 1, z, x + 1, dirt_level + 1, z +1, "minecraft:spruce_log")) + len(pp.blockSearch(x, dirt_level + 1, z, x + 1, dirt_level + 1, z +1, "minecraft:spruce_sapling"))
+  if sapling_planted != 4:
+     return 0
+  return 1
+
+def do_rest(start_pos):
+  for i in range(start_pos, 441):
     if do_one(i) == 0:
        print("Failed at " + str(i))
        break
