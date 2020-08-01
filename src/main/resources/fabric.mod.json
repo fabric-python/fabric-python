@@ -18,8 +18,8 @@
 
   "environment": "*",
   "entrypoints": {
-    "main": [
-      "com.chenweikeng.fabric_python.PythonProxy"
+    "client": [
+      "org.fabric_python.mod.PythonProxy"
     ]
   },
 
