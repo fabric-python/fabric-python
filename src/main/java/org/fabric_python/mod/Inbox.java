@@ -23,6 +23,10 @@ public class Inbox {
     }
 
     void run(MinecraftClient client){
+        if(!client.isRunning()){
+            return;
+        }
+
         for (Map.Entry<String, LinkedList<Map<String, String>>> entry : queues.entrySet()) {
             LinkedList<Map<String, String>> list = entry.getValue();
 
