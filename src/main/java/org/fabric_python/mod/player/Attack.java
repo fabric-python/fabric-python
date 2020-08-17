@@ -39,7 +39,7 @@ public class Attack implements TaskWorker {
         
         assert player != null;
         Predicate<Entity> predicate = p -> type.isPresent() && p.getType()==type.get();
-        List<Entity> target = player.getEntityWorld().getEntities((Class<? extends Entity>) null, box, predicate);
+        List<Entity> target = player.getEntityWorld().getEntities(player, box, predicate);
 
         if(target.size() != 0){
             assert client.interactionManager != null;

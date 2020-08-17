@@ -1,0 +1,24 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "org.fabric_python.mod.mixins",
+  "compatibilityLevel": "JAVA_8",
+  "mixins": [],
+  "client": [
+    "ChatMessageMixin",
+    "BlockRenderMixin",
+    "CrossRenderMixin",
+    "BlockOpaqueMixin",
+    "BlockTranslucentMixin",
+    "StatusEffectMixin",
+    "StudyPlayerMovementMixin",
+    "StudyInteractMixin",
+    "StudyPlayerNoRidingMixin",
+    "SafeFallMixin",
+    "SafeFallVelocityMixin"
+  ],
+  "server": [],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

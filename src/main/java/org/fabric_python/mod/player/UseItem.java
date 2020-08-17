@@ -9,7 +9,7 @@ import org.fabric_python.mod.TaskWorker;
 import java.util.HashMap;
 import java.util.Map;
 
-public class Use implements TaskWorker {
+public class UseItem implements TaskWorker {
     @Override
     public void onTask(MinecraftClient client, Map<String, String> info) {
         assert client.interactionManager != null;

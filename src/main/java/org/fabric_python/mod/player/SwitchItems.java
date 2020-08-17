@@ -31,10 +31,10 @@ public class SwitchItems implements TaskWorker {
         /* skip slot 5, 6, 7, 8: armors */
 
         /* available slots:
-         * first column:  9, 10, 11,    12, 13, 14,    15, 16, 17
-         * second column: 18, 19, 20,    21, 22, 23,    24, 25, 26
-         * third column:  27, 28, 29,    30, 31, 32,    33, 34, 35
-         * 1-9: 36, 37, 38    39, 40, 41    42, 43, 44
+         * first row    :   9, 10, 11, 12, 13, 14, 15, 16, 17
+         * second row   :   18, 19, 20, 21, 22, 23, 24, 25, 26
+         * third row    :   27, 28, 29, 30, 31, 32, 33, 34, 35
+         * player 1-9   :   36, 37, 38, 39, 40, 41, 42, 43, 44
          */
         for(int i = 9; i <= 44; i++) {
             Slot cur_slot = player.playerScreenHandler.getSlot(i);

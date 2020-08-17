@@ -2,10 +2,16 @@ package org.fabric_python.mod;
 
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.event.client.ClientTickCallback;
+import net.minecraft.block.NetherrackBlock;
 import py4j.GatewayServer;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import static java.util.UUID.randomUUID;
 
@@ -14,9 +20,16 @@ public class PythonProxy implements ClientModInitializer {
 	private static PythonProxy pythonProxy;
 	public static Inbox inbox;
 	public static Outbox outbox;
+	public static Set<String> noRenderList;
+	public static Map<String, String> globalMap;
+	public static Logger logger = LogManager.getFormatterLogger("Fabric-Python");
 
 	public static PythonProxy getInstance(){
 		return pythonProxy;
+	}
+
+	public static Logger getLogger() {
+		return logger;
 	}
 
 	@Override
@@ -26,15 +39,29 @@ public class PythonProxy implements ClientModInitializer {
 		inbox = new Inbox();
 		outbox = new Outbox();
 
+		noRenderList = new HashSet<>();
+		noRenderList.add(NetherrackBlock.class.getSimpleName());
+
+		globalMap = new HashMap<>();
+
+		inbox.addWorker("chest_cache", new org.fabric_python.mod.container.ChestCache());
+		inbox.addWorker("close_container", new org.fabric_python.mod.container.CloseContainer());
+		inbox.addWorker("register_chests", new org.fabric_python.mod.container.RegisterChests());
+
 		inbox.addWorker("attack", new org.fabric_python.mod.player.Attack());
 		inbox.addWorker("hungry", new org.fabric_python.mod.player.Hungry());
 		inbox.addWorker("switch_items", new org.fabric_python.mod.player.SwitchItems());
-		inbox.addWorker("use", new org.fabric_python.mod.player.Use());
+		inbox.addWorker("use_item", new org.fabric_python.mod.player.UseItem());
+		inbox.addWorker("use_block", new org.fabric_python.mod.player.UseBlock());
+		inbox.addWorker("move", new org.fabric_python.mod.player.Move());
+		inbox.addWorker("rowing", new org.fabric_python.mod.player.Rowing());
 
 		inbox.addWorker("nearby_mods", new org.fabric_python.mod.world.NearbyMods());
 
 		GatewayServer gatewayServer = new GatewayServer(new PythonProxy());
 		gatewayServer.start();
+
+		getLogger().info("Fabric-Python has been initialized");
 
 		ClientTickCallback.EVENT.register(client -> {
 			inbox.run(client);
@@ -60,7 +87,7 @@ public class PythonProxy implements ClientModInitializer {
 		}
 
 		try {
-			int attempts = 10;
+			int attempts = 50;
 
 			while(attempts > 0){
 				Thread.sleep(100);

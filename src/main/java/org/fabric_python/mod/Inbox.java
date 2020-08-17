@@ -32,7 +32,15 @@ public class Inbox {
 
             while (!list.isEmpty()) {
                 Map<String, String> info = list.remove();
-                workers.get(entry.getKey()).onTask(client, info);
+                try {
+                    workers.get(entry.getKey()).onTask(client, info);
+                }catch(NullPointerException e){
+                    if(!info.get("sid").equals("")) {
+                        Map<String, String> res = new HashMap<String, String>();
+                        res.put("res", e.getMessage() + Arrays.toString(e.getStackTrace()));
+                        PythonProxy.outbox.sendMsg(info.get("sid"), res);
+                    }
+                };
             }
         }
     }

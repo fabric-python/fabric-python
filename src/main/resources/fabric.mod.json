@@ -29,5 +29,9 @@
   },
   "suggests": {
     "flamingo": "*"
-  }
+  },
+
+  "mixins": [
+    "fabric_python.mixins.json"
+  ]
 }
