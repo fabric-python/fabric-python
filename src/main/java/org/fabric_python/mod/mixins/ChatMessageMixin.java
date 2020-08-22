@@ -2,8 +2,8 @@ package org.fabric_python.mod.mixins;
 
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayerEntity;
+import net.minecraft.entity.passive.PigEntity;
 import net.minecraft.text.Text;
-import net.minecraft.util.math.Vec3d;
 import org.fabric_python.mod.PythonProxy;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -11,8 +11,6 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.time.Instant;
-import java.util.HashMap;
-import java.util.Map;
 
 @Mixin(ClientPlayerEntity.class)
 public class ChatMessageMixin {
@@ -22,6 +20,17 @@ public class ChatMessageMixin {
             if (msg.startsWith("/xray")) {
                 int currentXray = Integer.parseInt(PythonProxy.globalMap.getOrDefault("xray", "0"));
                 PythonProxy.globalMap.put("xray", String.valueOf(1 - currentXray));
+
+                MinecraftClient client = MinecraftClient.getInstance();
+                ClientPlayerEntity player = client.player;
+
+                if (player != null) {
+                    if (currentXray == 0) {
+                        player.sendMessage(Text.method_30163("Xray is on."), false);
+                    }else{
+                        player.sendMessage(Text.method_30163("Xray is off."), false);
+                    }
+                }
 
                 MinecraftClient.getInstance().worldRenderer.reload();
 
@@ -33,6 +42,59 @@ public class ChatMessageMixin {
                 int currentNV = Integer.parseInt(PythonProxy.globalMap.getOrDefault("night_vision", "0"));
                 PythonProxy.globalMap.put("night_vision", String.valueOf(1 - currentNV));
 
+                MinecraftClient client = MinecraftClient.getInstance();
+                ClientPlayerEntity player = client.player;
+
+                if (player != null) {
+                    if (currentNV == 0) {
+                        player.sendMessage(Text.method_30163("Night vision is on."), false);
+                    }else{
+                        player.sendMessage(Text.method_30163("Night vision is off."), false);
+                    }
+                }
+
+                MinecraftClient.getInstance().worldRenderer.reload();
+
+                info.cancel();
+                return;
+            }
+
+            if (msg.startsWith("/autoattack")) {
+                int currentAutoAttack = Integer.parseInt(PythonProxy.globalMap.getOrDefault("autoattack", "0"));
+                PythonProxy.globalMap.put("autoattack", String.valueOf(1 - currentAutoAttack));
+
+                MinecraftClient client = MinecraftClient.getInstance();
+                ClientPlayerEntity player = client.player;
+
+                if (player != null) {
+                    if (currentAutoAttack == 0) {
+                        player.sendMessage(Text.method_30163("Auto attack is on."), false);
+                    }else{
+                        player.sendMessage(Text.method_30163("Auto attack is off."), false);
+                    }
+                }
+
+                MinecraftClient.getInstance().worldRenderer.reload();
+
+                info.cancel();
+                return;
+            }
+
+            if (msg.startsWith("/automine")) {
+                int currentAutoMine = Integer.parseInt(PythonProxy.globalMap.getOrDefault("automine", "0"));
+                PythonProxy.globalMap.put("automine", String.valueOf(1 - currentAutoMine));
+
+                MinecraftClient client = MinecraftClient.getInstance();
+                ClientPlayerEntity player = client.player;
+
+                if (player != null) {
+                    if (currentAutoMine == 0) {
+                        player.sendMessage(Text.method_30163("Auto mining mode is on."), false);
+                    }else{
+                        player.sendMessage(Text.method_30163("Auto mining mode is off."), false);
+                    }
+                }
+
                 MinecraftClient.getInstance().worldRenderer.reload();
 
                 info.cancel();
@@ -42,6 +104,112 @@ public class ChatMessageMixin {
             if (msg.startsWith("/safefall")) {
                 int currentSafeFall = Integer.parseInt(PythonProxy.globalMap.getOrDefault("safefall", "0"));
                 PythonProxy.globalMap.put("safefall", String.valueOf(1 - currentSafeFall));
+
+                MinecraftClient client = MinecraftClient.getInstance();
+                ClientPlayerEntity player = client.player;
+
+                if (player != null) {
+                    if (currentSafeFall == 0) {
+                        player.sendMessage(Text.method_30163("Safe falling is on."), false);
+                    }else{
+                        player.sendMessage(Text.method_30163("Safe falling is off."), false);
+                    }
+                }
+
+                info.cancel();
+                return;
+            }
+
+            if (msg.startsWith("/sneaking")) {
+                int currentSneaking = Integer.parseInt(PythonProxy.globalMap.getOrDefault("sneaking", "0"));
+                PythonProxy.globalMap.put("sneaking", String.valueOf(1 - currentSneaking));
+
+                MinecraftClient client = MinecraftClient.getInstance();
+                ClientPlayerEntity player = client.player;
+
+                if (player != null) {
+                    if (currentSneaking == 0) {
+                        player.sendMessage(Text.method_30163("Sneaking is on."), false);
+                    }else{
+                        player.sendMessage(Text.method_30163("Sneaking is off."), false);
+                    }
+                }
+
+                info.cancel();
+                return;
+            }
+
+            if (msg.startsWith("/easyrow")) {
+                int currentRowing = Integer.parseInt(PythonProxy.globalMap.getOrDefault("easyrow", "0"));
+                PythonProxy.globalMap.put("easyrow", String.valueOf(1 - currentRowing));
+
+                MinecraftClient client = MinecraftClient.getInstance();
+                ClientPlayerEntity player = client.player;
+
+                if (player != null) {
+                    if (currentRowing == 0) {
+                        player.sendMessage(Text.method_30163("Easy rowing is on."), false);
+                    }else{
+                        player.sendMessage(Text.method_30163("Easy rowing is off."), false);
+                    }
+                }
+
+                info.cancel();
+                return;
+            }
+
+            if (msg.startsWith("/mobglow")) {
+                int currentMobGlowing = Integer.parseInt(PythonProxy.globalMap.getOrDefault("mobglow", "0"));
+                PythonProxy.globalMap.put("mobglow", String.valueOf(1 - currentMobGlowing));
+
+                MinecraftClient client = MinecraftClient.getInstance();
+                ClientPlayerEntity player = client.player;
+
+                if (player != null) {
+                    if (currentMobGlowing == 0) {
+                        player.sendMessage(Text.method_30163("Mob glowing is on."), false);
+                    }else{
+                        player.sendMessage(Text.method_30163("Mob glowing is off."), false);
+                    }
+                }
+
+                info.cancel();
+                return;
+            }
+
+            if (msg.startsWith("/safemine")) {
+                int isSafeMine = Integer.parseInt(PythonProxy.globalMap.getOrDefault("safemine", "0"));
+                PythonProxy.globalMap.put("safemine", String.valueOf(1 - isSafeMine));
+
+                MinecraftClient client = MinecraftClient.getInstance();
+                ClientPlayerEntity player = client.player;
+
+                if (player != null) {
+                    if (isSafeMine == 0) {
+                        player.sendMessage(Text.method_30163("Safe Mining is on."), false);
+                    }else{
+                        player.sendMessage(Text.method_30163("Safe Mining is off."), false);
+                    }
+                }
+
+                info.cancel();
+                return;
+            }
+
+            if(msg.startsWith("/autotorch")) {
+                int currentAutoTorch = Integer.parseInt(PythonProxy.globalMap.getOrDefault("autotorch", "0"));
+                PythonProxy.globalMap.put("autotorch", String.valueOf(1 - currentAutoTorch));
+
+                MinecraftClient client = MinecraftClient.getInstance();
+                ClientPlayerEntity player = client.player;
+
+                if (player != null) {
+                    if (currentAutoTorch == 0) {
+                        player.sendMessage(Text.method_30163("Autotorch is on."), false);
+                    }else{
+                        player.sendMessage(Text.method_30163("Autotorch is off."), false);
+                    }
+                }
 
                 info.cancel();
                 return;

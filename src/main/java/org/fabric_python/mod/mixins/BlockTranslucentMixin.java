@@ -2,7 +2,6 @@ package org.fabric_python.mod.mixins;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
-import net.minecraft.block.NetherrackBlock;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.BlockView;
 import org.fabric_python.mod.PythonProxy;

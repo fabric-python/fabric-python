@@ -15,7 +15,18 @@
     "StudyInteractMixin",
     "StudyPlayerNoRidingMixin",
     "SafeFallMixin",
-    "SafeFallVelocityMixin"
+    "SafeFallVelocityMixin",
+    "SneakingMixin",
+    "StudyPlayerNoRidingStriderMixin",
+    "StudyPlayerNoRidingPigMixin",
+    "AutoTorchMixin",
+    "PlayerInteractBlockMixin",
+    "EasyRowMixin",
+    "MobGlowingMixin",
+    "SafeMineMixin",
+    "AutoMineMixin",
+    "AutoMineCooldownMixin",
+    "AutoAttackMixin"
   ],
   "server": [],
   "injectors": {
