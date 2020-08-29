@@ -33,7 +33,9 @@ public class Move implements TaskWorker {
         nodeMaker.setCanEnterOpenDoors(true);
         PathNodeNavigator pathNodeNavigator = new PathNodeNavigator(nodeMaker, MathHelper.floor(100 * 16.0D)); // as in the case of a ghast
 
-        assert client.player != null;
+        if(client.player == null){
+            return;
+        }
         ClientPlayerEntity player = client.player;
         VillagerEntity fakeVillager = new VillagerEntity(EntityType.VILLAGER, player.world);
         Vec3d pos = player.getPos();
@@ -50,13 +52,17 @@ public class Move implements TaskWorker {
         fakeVillager.setUpwardSpeed(player.upwardSpeed);
 
         Vec3d dest = new Vec3d(dest_x, dest_y, dest_z);
-        if (player.getPos().distanceTo(dest) <= 4) {
+        if (player.getPos().distanceTo(dest) <= 4 && info.getOrDefault("direct", "1").equals("1")) {
             Vec3d delta = dest.subtract(client.player.getPos());
 
-            client.player.setJumping(true);
-            client.player.setYaw(changeAngle(client.player.yaw, (float) (MathHelper.atan2(delta.z, delta.x) * 57.2957763671875D) - 90.0F));
+            if(info.getOrDefault("nojump", "0").equals("0")) {
+                client.player.setJumping(true);
+            }
+            client.player.setYaw((float) (MathHelper.atan2(delta.z, delta.x) * 57.2957763671875D) - 90.0F);
             client.player.move(MovementType.PLAYER, delta);
-            client.player.setJumping(false);
+            if(info.getOrDefault("nojump", "0").equals("0")) {
+                client.player.setJumping(false);
+            }
         }else{
             int rangeOfViewableWorld = 100 + 16;
             BlockPos playerBlockPos = client.player.getBlockPos();
@@ -78,10 +84,14 @@ public class Move implements TaskWorker {
                 }else{
                     Vec3d delta = cur_dest.subtract(client.player.getPos());
 
-                    client.player.setJumping(true);
-                    player.setYaw(changeAngle(client.player.yaw, (float) (MathHelper.atan2(delta.z, delta.x) * 57.2957763671875D) - 90.0F));
+                    if(info.getOrDefault("nojump", "0").equals("0")) {
+                        client.player.setJumping(true);
+                    }
+                    player.setYaw((float) (MathHelper.atan2(delta.z, delta.x) * 57.2957763671875D) - 90.0F);
                     client.player.move(MovementType.PLAYER, delta);
-                    client.player.setJumping(false);
+                    if(info.getOrDefault("nojump", "0").equals("0")) {
+                        client.player.setJumping(false);
+                    }
 
                     if(cur_dest.distanceTo(player.getPos()) > 4){
                         break;
@@ -93,25 +103,5 @@ public class Move implements TaskWorker {
         Map<String, String> res = new HashMap<>();
         res.put("res", String.valueOf(player.getPos().distanceTo(dest)));
         PythonProxy.outbox.sendMsg(info.get("sid"), res);
-    }
-
-    float changeAngle(float float_1, float float_2) {
-        float float_4 = MathHelper.wrapDegrees(float_2 - float_1);
-        if (float_4 > (float) 90.0) {
-            float_4 = (float) 90.0;
-        }
-
-        if (float_4 < -(float) 90.0) {
-            float_4 = -(float) 90.0;
-        }
-
-        float float_5 = float_1 + float_4;
-        if (float_5 < 0.0F) {
-            float_5 += 360.0F;
-        } else if (float_5 > 360.0F) {
-            float_5 -= 360.0F;
-        }
-
-        return float_5;
     }
 }

@@ -30,7 +30,9 @@ public class Rowing implements TaskWorker {
             Vec3d delta = new Vec3d(dest_x - pos.x, dest_y - pos.y, dest_z - pos.z);
             delta = delta.multiply(20 / delta.length());
 
-            boat.setYaw(changeAngle(boat.yaw, (float) (MathHelper.atan2(delta.z, delta.x) * 57.2957763671875D) - 90.0F));
+            Vec3d boatPosition = boat.getPos();
+            float boatPitch = boat.getPitch(1.0F);
+            boat.updatePositionAndAngles(boatPosition.x, boatPosition.y, boatPosition.z, (float) (MathHelper.atan2(delta.z, delta.x) * 57.2957763671875D) - 90.0F, boatPitch);
 
             boat.move(MovementType.SELF, delta);
             boat.updatePassengerPosition(player);
@@ -39,25 +41,5 @@ public class Rowing implements TaskWorker {
         Map<String, String> res = new HashMap<>();
         res.put("res", String.valueOf(player.getPos().distanceTo(dest)));
         PythonProxy.outbox.sendMsg(info.get("sid"), res);
-    }
-
-    float changeAngle(float float_1, float float_2) {
-        float float_4 = MathHelper.wrapDegrees(float_2 - float_1);
-        if (float_4 > (float) 90.0) {
-            float_4 = (float) 90.0;
-        }
-
-        if (float_4 < -(float) 90.0) {
-            float_4 = -(float) 90.0;
-        }
-
-        float float_5 = float_1 + float_4;
-        if (float_5 < 0.0F) {
-            float_5 += 360.0F;
-        } else if (float_5 > 360.0F) {
-            float_5 -= 360.0F;
-        }
-
-        return float_5;
     }
 }

@@ -44,9 +44,14 @@ public class PythonProxy implements ClientModInitializer {
 
 		globalMap = new HashMap<>();
 
+		inbox.addWorker("find_safe_mine_block", new org.fabric_python.mod.block.FindSafeMineBlock());
+		inbox.addWorker("start_mine", new org.fabric_python.mod.block.StartMine());
+		inbox.addWorker("finish_mine", new org.fabric_python.mod.block.FinishMine());
+
 		inbox.addWorker("chest_cache", new org.fabric_python.mod.container.ChestCache());
 		inbox.addWorker("close_container", new org.fabric_python.mod.container.CloseContainer());
 		inbox.addWorker("register_chests", new org.fabric_python.mod.container.RegisterChests());
+		inbox.addWorker("nospace", new org.fabric_python.mod.container.NoSpace());
 
 		inbox.addWorker("attack", new org.fabric_python.mod.player.Attack());
 		inbox.addWorker("hungry", new org.fabric_python.mod.player.Hungry());
@@ -55,6 +60,7 @@ public class PythonProxy implements ClientModInitializer {
 		inbox.addWorker("use_block", new org.fabric_python.mod.player.UseBlock());
 		inbox.addWorker("move", new org.fabric_python.mod.player.Move());
 		inbox.addWorker("rowing", new org.fabric_python.mod.player.Rowing());
+		inbox.addWorker("send_chat_message", new org.fabric_python.mod.player.SendChatMessage());
 
 		inbox.addWorker("nearby_mods", new org.fabric_python.mod.world.NearbyMods());
 

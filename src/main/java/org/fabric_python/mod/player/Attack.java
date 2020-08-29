@@ -33,7 +33,7 @@ public class Attack implements TaskWorker {
 
         if(!type.isPresent()){
             Map<String, String> res = new HashMap<>();
-            res.put("res", "type not found");
+            res.put("error", "type not found");
             PythonProxy.outbox.sendMsg(info.get("sid"), res);
         }
         
