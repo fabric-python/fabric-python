@@ -74,7 +74,43 @@ public class ChatMessageMixin {
                     }
                 }
 
-                MinecraftClient.getInstance().worldRenderer.reload();
+                info.cancel();
+                return;
+            }
+
+            if (msg.startsWith("/autofeedpig")) {
+                int currentAutoFeedPig = Integer.parseInt(PythonProxy.globalMap.getOrDefault("autofeedpig", "0"));
+                PythonProxy.globalMap.put("autofeedpig", String.valueOf(1 - currentAutoFeedPig));
+
+                MinecraftClient client = MinecraftClient.getInstance();
+                ClientPlayerEntity player = client.player;
+
+                if (player != null) {
+                    if (currentAutoFeedPig == 0) {
+                        player.sendMessage(Text.method_30163("Auto pig feeding is on."), false);
+                    }else{
+                        player.sendMessage(Text.method_30163("Auto pig feeding is off."), false);
+                    }
+                }
+
+                info.cancel();
+                return;
+            }
+
+            if (msg.startsWith("/autofeedcow")) {
+                int currentAutoFeedCow = Integer.parseInt(PythonProxy.globalMap.getOrDefault("autofeedcow", "0"));
+                PythonProxy.globalMap.put("autofeedcow", String.valueOf(1 - currentAutoFeedCow));
+
+                MinecraftClient client = MinecraftClient.getInstance();
+                ClientPlayerEntity player = client.player;
+
+                if (player != null) {
+                    if (currentAutoFeedCow == 0) {
+                        player.sendMessage(Text.method_30163("Auto cow feeding is on."), false);
+                    }else{
+                        player.sendMessage(Text.method_30163("Auto cow feeding is off."), false);
+                    }
+                }
 
                 info.cancel();
                 return;
@@ -94,8 +130,6 @@ public class ChatMessageMixin {
                         player.sendMessage(Text.method_30163("Auto mining mode is off."), false);
                     }
                 }
-
-                MinecraftClient.getInstance().worldRenderer.reload();
 
                 info.cancel();
                 return;
