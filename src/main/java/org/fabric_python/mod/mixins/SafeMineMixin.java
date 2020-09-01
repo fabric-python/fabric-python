@@ -107,7 +107,7 @@ public class SafeMineMixin {
         }
 
         if(willFall){
-            player.sendMessage(Text.method_30163("Unsafe mining"), true);
+            player.sendMessage(Text.of("Unsafe mining"), true);
             info.setReturnValue(false);
         }
 
@@ -125,7 +125,7 @@ public class SafeMineMixin {
         }
 
         if (!shouldMine) {
-            player.sendMessage(Text.method_30163("Unsafe mining"), true);
+            player.sendMessage(Text.of("Unsafe mining"), true);
             info.setReturnValue(false);
         }
     }

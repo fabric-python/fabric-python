@@ -76,7 +76,7 @@ public class Move implements TaskWorker {
 
             Vec3d cur_dest = client.player.getPos();
             while(path.getCurrentNodeIndex() < path.getLength()) {
-                Vec3i next_i = path.getCurrentPosition();
+                Vec3d next_i = path.getNodePosition(fakeVillager, path.getCurrentNodeIndex());
                 Vec3d next = new Vec3d(next_i.getX(), next_i.getY(), next_i.getZ());
                 if(next.distanceTo(client.player.getPos()) < 10){
                     cur_dest = next;

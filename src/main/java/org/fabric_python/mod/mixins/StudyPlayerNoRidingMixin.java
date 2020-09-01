@@ -46,7 +46,7 @@ public abstract class StudyPlayerNoRidingMixin extends Input {
         if (now >= currentStudyUntil) {
             PythonProxy.globalMap.put("study_locked", "False");
             if(MinecraftClient.getInstance().player !=null){
-                MinecraftClient.getInstance().player.sendMessage(Text.method_30163("Study mode ends"), false);
+                MinecraftClient.getInstance().player.sendMessage(Text.of("Study mode ends"), false);
             }
             return false;
         }

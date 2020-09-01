@@ -28,7 +28,9 @@
     "AutoMineCooldownMixin",
     "AutoAttackMixin",
     "AutoFeedPigMixin",
-    "AutoFeedCowMixin"
+    "AutoFeedCowMixin",
+    "AutoLanternMixin",
+    "AutoBuildMixin"
   ],
   "server": [],
   "injectors": {

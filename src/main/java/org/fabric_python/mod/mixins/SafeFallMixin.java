@@ -20,7 +20,7 @@ public class SafeFallMixin {
             return;
         }
 
-        int safeFall = Integer.parseInt(PythonProxy.globalMap.getOrDefault("safefall", "0"));
+        int safeFall = Integer.parseInt(PythonProxy.globalMap.getOrDefault("safefall", "1"));
         if (safeFall == 0) {
             return;
         }

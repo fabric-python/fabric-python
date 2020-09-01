@@ -1,6 +1,5 @@
 package org.fabric_python.mod.mixins;
 
-import net.minecraft.block.AbstractChestBlock;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.MinecraftClient;
@@ -29,19 +28,21 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.time.Instant;
-import java.util.*;
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
 
 import static java.lang.Math.sqrt;
 
 @Mixin(ClientPlayerEntity.class)
-public abstract class AutoTorchMixin {
+public abstract class AutoLanternMixin {
     @Inject(at = @At("RETURN"), method = "sendMovementPackets ()V")
     private void sendMovementPackets(CallbackInfo info) {
         if (PythonProxy.globalMap == null) {
             return;
         }
 
-        int autotorch = Integer.parseInt(PythonProxy.globalMap.getOrDefault("autotorch", "0"));
+        int autotorch = Integer.parseInt(PythonProxy.globalMap.getOrDefault("autolantern", "0"));
         if (autotorch == 0) {
             return;
         }
@@ -73,33 +74,24 @@ public abstract class AutoTorchMixin {
         }
 
         double coolDownNow = Instant.now().getEpochSecond() * 1000 + Instant.now().getNano() / 1000.0 / 1000;
-        double coolDownLast = Double.parseDouble(PythonProxy.globalMap.getOrDefault("autotorch_cooldown", "0.0"));
+        double coolDownLast = Double.parseDouble(PythonProxy.globalMap.getOrDefault("autolantern_cooldown", "0.0"));
 
         if(coolDownNow - coolDownLast <= 250) {
             return;
         }
 
-        PythonProxy.globalMap.put("autotorch_cooldown", String.valueOf(coolDownNow));
-
-        boolean offHandReady = false;
-
-        ItemStack offHandItemStack = player.getOffHandStack();
-        Item offHandItem = offHandItemStack.getItem();
-
-        if(offHandItemStack.getCount() != 0 && Registry.ITEM.getId(offHandItem).toString().equals("minecraft:torch")){
-            offHandReady = true;
-        }
+        PythonProxy.globalMap.put("autolantern_cooldown", String.valueOf(coolDownNow));
 
         boolean mainHandReady = false;
 
         ItemStack mainHandItemStack = player.getMainHandStack();
         Item mainHandItem = mainHandItemStack.getItem();
 
-        if(mainHandItemStack.getCount() != 0 && Registry.ITEM.getId(mainHandItem).toString().equals("minecraft:torch")){
+        if(mainHandItemStack.getCount() != 0 && Registry.ITEM.getId(mainHandItem).toString().equals("minecraft:lantern")){
             mainHandReady = true;
         }
 
-        if(!offHandReady && !mainHandReady){
+        if(!mainHandReady){
             return;
         }
 
@@ -133,19 +125,19 @@ public abstract class AutoTorchMixin {
                         continue;
                     }
 
-                    if(!Block.sideCoversSmallSquare(world, blockPos, Direction.UP)){
+                    if(!Block.sideCoversSmallSquare(world, blockPos, Direction.DOWN)){
                         continue;
                     }
 
-                    BlockState blockState_up = world.getBlockState(blockPos.add(0, 1, 0));
+                    BlockState blockState_down = world.getBlockState(blockPos.add(0, -1, 0));
 
-                    if(!blockState_up.isAir()){
+                    if(!blockState_down.isAir()){
                         continue;
                     }
 
-                    BlockState blockState_up_up = world.getBlockState(blockPos.add(0, 2, 0));
+                    BlockState blockState_down_down = world.getBlockState(blockPos.add(0, -2, 0));
 
-                    if(blockState_up_up.isOpaque()){
+                    if(!blockState_down_down.isAir()){
                         continue;
                     }
 
@@ -163,7 +155,7 @@ public abstract class AutoTorchMixin {
         BlockPos foundBlockPos = null;
         BlockState foundBlockState = null;
         for(BlockPos blockPos: list){
-            if(view.getLightLevel(blockPos.add(0, 1, 0)) <= 8){
+            if(view.getLightLevel(blockPos.add(0, -1, 0)) <= 6){
                 found = true;
                 foundBlockPos = blockPos;
                 foundBlockState = world.getBlockState(foundBlockPos);
@@ -180,27 +172,20 @@ public abstract class AutoTorchMixin {
 
         if(found) {
             if(client.interactionManager != null) {
-                PythonProxy.globalMap.put("autotorch_cancel_interaction", "True");
+                PythonProxy.globalMap.put("autolantern_cancel_interaction", "True");
 
                 if(blockMayInteract) {
                     player.networkHandler.sendPacket(new ClientCommandC2SPacket(player, ClientCommandC2SPacket.Mode.PRESS_SHIFT_KEY));
                 }
 
-                Hand hand;
-                if(offHandReady){
-                    hand = Hand.OFF_HAND;
-                }else{
-                    hand = Hand.MAIN_HAND;
-                }
-
-                client.interactionManager.interactBlock(player, client.world, hand, new BlockHitResult(new Vec3d(foundBlockPos.getX() + 0.5, foundBlockPos.getY() + 1, foundBlockPos.getZ() + 0.5), Direction.UP, foundBlockPos, false));
+                client.interactionManager.interactBlock(player, client.world, Hand.MAIN_HAND, new BlockHitResult(new Vec3d(foundBlockPos.getX() + 0.5, foundBlockPos.getY(), foundBlockPos.getZ() + 0.5), Direction.DOWN, foundBlockPos, false));
 
                 if(blockMayInteract) {
                     player.networkHandler.sendPacket(new ClientCommandC2SPacket(player, ClientCommandC2SPacket.Mode.RELEASE_SHIFT_KEY));
                 }
 
-                PythonProxy.globalMap.put("autotorch_cancel_interaction", "False");
-                player.sendMessage(Text.of("Torch placed"), true);
+                PythonProxy.globalMap.put("autolantern_cancel_interaction", "False");
+                player.sendMessage(Text.of("Lantern placed"), true);
             }
         }
     }

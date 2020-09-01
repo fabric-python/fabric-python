@@ -1,8 +1,9 @@
 package org.fabric_python.mod;
 
 import net.fabricmc.api.ClientModInitializer;
-import net.fabricmc.fabric.api.event.client.ClientTickCallback;
+import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.minecraft.block.NetherrackBlock;
+import net.minecraft.util.registry.Registry;
 import py4j.GatewayServer;
 
 import java.util.HashMap;
@@ -40,7 +41,11 @@ public class PythonProxy implements ClientModInitializer {
 		outbox = new Outbox();
 
 		noRenderList = new HashSet<>();
-		noRenderList.add(NetherrackBlock.class.getSimpleName());
+		noRenderList.add("netherrack");
+		noRenderList.add("stone");
+		noRenderList.add("granite");
+		noRenderList.add("diorite");
+		noRenderList.add("andesite");
 
 		globalMap = new HashMap<>();
 
@@ -69,7 +74,7 @@ public class PythonProxy implements ClientModInitializer {
 
 		getLogger().info("Fabric-Python has been initialized");
 
-		ClientTickCallback.EVENT.register(client -> {
+		ClientTickEvents.END_CLIENT_TICK.register(client -> {
 			inbox.run(client);
 		});
 	}

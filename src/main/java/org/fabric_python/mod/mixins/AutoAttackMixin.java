@@ -93,11 +93,11 @@ public abstract class AutoAttackMixin {
         Box box = new Box(box_1, box_2);
 
         Predicate<Entity> predicate = p -> (AutoAttackPredicate.shouldAutoAttack(p)) && (p.distanceTo(player) <= 6);
-        List<Entity> target = player.getEntityWorld().getEntities(player, box, predicate);
+        List<Entity> target = player.getEntityWorld().getOtherEntities(player, box, predicate);
 
         if(target.size() != 0){
             client.interactionManager.attackEntity(player, target.get(0));
-            player.sendMessage(Text.method_30163("Auto attacked"), true);
+            player.sendMessage(Text.of("Auto attacked"), true);
         }
     }
 }

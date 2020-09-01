@@ -40,7 +40,7 @@ public class NearbyMods implements TaskWorker {
         }
 
         Predicate<Entity> predicate = p -> true;
-        List<Entity> target = player.getEntityWorld().getEntities(client.player, box, predicate);
+        List<Entity> target = player.getEntityWorld().getOtherEntities(client.player, box, predicate);
 
         Map<String, String> res = new HashMap<>();
         res.put("count", String.valueOf(target.size()));
