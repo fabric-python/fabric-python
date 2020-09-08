@@ -557,6 +557,44 @@ public class ChatMessageMixin {
                 return;
             }
 
+            if(msg.startsWith("/autolava")) {
+                int currentAutoLava = Integer.parseInt(PythonProxy.globalMap.getOrDefault("autolava", "0"));
+                PythonProxy.globalMap.put("autolava", String.valueOf(1 - currentAutoLava));
+
+                MinecraftClient client = MinecraftClient.getInstance();
+                ClientPlayerEntity player = client.player;
+
+                if (player != null) {
+                    if (currentAutoLava == 0) {
+                        player.sendMessage(Text.of("Autolava is on."), false);
+                    }else{
+                        player.sendMessage(Text.of("Autolava is off."), false);
+                    }
+                }
+
+                info.cancel();
+                return;
+            }
+
+            if(msg.startsWith("/autoplant")) {
+                int currentAutoPlant = Integer.parseInt(PythonProxy.globalMap.getOrDefault("autoplant", "0"));
+                PythonProxy.globalMap.put("autoplant", String.valueOf(1 - currentAutoPlant));
+
+                MinecraftClient client = MinecraftClient.getInstance();
+                ClientPlayerEntity player = client.player;
+
+                if (player != null) {
+                    if (currentAutoPlant == 0) {
+                        player.sendMessage(Text.of("Autoplant is on."), false);
+                    }else{
+                        player.sendMessage(Text.of("Autoplant is off."), false);
+                    }
+                }
+
+                info.cancel();
+                return;
+            }
+
             if(msg.startsWith("/autolantern")) {
                 int currentAutoLantern = Integer.parseInt(PythonProxy.globalMap.getOrDefault("autolantern", "0"));
                 PythonProxy.globalMap.put("autolantern", String.valueOf(1 - currentAutoLantern));

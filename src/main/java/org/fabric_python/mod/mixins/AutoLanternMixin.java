@@ -74,13 +74,11 @@ public abstract class AutoLanternMixin {
         }
 
         double coolDownNow = Instant.now().getEpochSecond() * 1000 + Instant.now().getNano() / 1000.0 / 1000;
-        double coolDownLast = Double.parseDouble(PythonProxy.globalMap.getOrDefault("autolantern_cooldown", "0.0"));
+        double coolDownLast = Double.parseDouble(PythonProxy.globalMap.getOrDefault("autoplace_cooldown", "0.0"));
 
         if(coolDownNow - coolDownLast <= 250) {
             return;
         }
-
-        PythonProxy.globalMap.put("autolantern_cooldown", String.valueOf(coolDownNow));
 
         boolean mainHandReady = false;
 
@@ -171,8 +169,10 @@ public abstract class AutoLanternMixin {
         }
 
         if(found) {
+            PythonProxy.globalMap.put("autoplace_cooldown", String.valueOf(coolDownNow));
+
             if(client.interactionManager != null) {
-                PythonProxy.globalMap.put("autolantern_cancel_interaction", "True");
+                PythonProxy.globalMap.put("autoplace_cancel_interaction", "True");
 
                 if(blockMayInteract) {
                     player.networkHandler.sendPacket(new ClientCommandC2SPacket(player, ClientCommandC2SPacket.Mode.PRESS_SHIFT_KEY));
@@ -184,7 +184,7 @@ public abstract class AutoLanternMixin {
                     player.networkHandler.sendPacket(new ClientCommandC2SPacket(player, ClientCommandC2SPacket.Mode.RELEASE_SHIFT_KEY));
                 }
 
-                PythonProxy.globalMap.put("autolantern_cancel_interaction", "False");
+                PythonProxy.globalMap.put("autoplace_cancel_interaction", "False");
                 player.sendMessage(Text.of("Lantern placed"), true);
             }
         }

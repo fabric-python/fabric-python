@@ -15,11 +15,9 @@ public abstract class PlayerInteractBlockMixin {
             return;
         }
 
-        boolean autotorch_cancel_interaction = Boolean.parseBoolean(PythonProxy.globalMap.getOrDefault("autotorch_cancel_interaction", "False"));
-        boolean autolantern_cancel_interaction = Boolean.parseBoolean(PythonProxy.globalMap.getOrDefault("autolantern_cancel_interaction", "False"));
-        boolean autobuild_cancel_interaction = Boolean.parseBoolean(PythonProxy.globalMap.getOrDefault("autobuild_cancel_interaction", "False"));
+        boolean autoplace_cancel_interaction = Boolean.parseBoolean(PythonProxy.globalMap.getOrDefault("autoplace_cooldown", "False"));
 
-        if (autotorch_cancel_interaction || autolantern_cancel_interaction || autobuild_cancel_interaction) {
+        if (autoplace_cancel_interaction) {
             info.setReturnValue(true);
         }
     }

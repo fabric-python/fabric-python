@@ -65,13 +65,11 @@ public abstract class AutoBuildMixin {
         }
 
         double coolDownNow = Instant.now().getEpochSecond() * 1000 + Instant.now().getNano() / 1000.0 / 1000;
-        double coolDownLast = Double.parseDouble(PythonProxy.globalMap.getOrDefault("autobuild_cooldown", "0.0"));
+        double coolDownLast = Double.parseDouble(PythonProxy.globalMap.getOrDefault("autoplace_cooldown", "0.0"));
 
         if(coolDownNow - coolDownLast <= 250) {
             return;
         }
-
-        PythonProxy.globalMap.put("autobuild_cooldown", String.valueOf(coolDownNow));
 
         boolean mainHandReady = false;
 
@@ -226,9 +224,11 @@ public abstract class AutoBuildMixin {
         }
 
         if(found) {
+            PythonProxy.globalMap.put("autoplace_cooldown", String.valueOf(coolDownNow));
+
             if(client.interactionManager != null) {
                 if(blockMayInteract) {
-                    PythonProxy.globalMap.put("autobuild_cancel_interaction", "True");
+                    PythonProxy.globalMap.put("autoplace_cancel_interaction", "True");
                     player.networkHandler.sendPacket(new ClientCommandC2SPacket(player, ClientCommandC2SPacket.Mode.PRESS_SHIFT_KEY));
                 }
 
@@ -236,7 +236,7 @@ public abstract class AutoBuildMixin {
 
                 if(blockMayInteract) {
                     player.networkHandler.sendPacket(new ClientCommandC2SPacket(player, ClientCommandC2SPacket.Mode.RELEASE_SHIFT_KEY));
-                    PythonProxy.globalMap.put("autobuild_cancel_interaction", "False");
+                    PythonProxy.globalMap.put("autoplace_cancel_interaction", "False");
                 }
             }
         }

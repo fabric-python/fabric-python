@@ -1,6 +1,5 @@
 package org.fabric_python.mod.mixins;
 
-import net.minecraft.block.AbstractChestBlock;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.MinecraftClient;
@@ -29,20 +28,22 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.time.Instant;
-import java.util.*;
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
 
 import static java.lang.Math.sqrt;
 
 @Mixin(ClientPlayerEntity.class)
-public abstract class AutoTorchMixin {
+public abstract class AutoPlantMixin {
     @Inject(at = @At("RETURN"), method = "sendMovementPackets ()V")
     private void sendMovementPackets(CallbackInfo info) {
         if (PythonProxy.globalMap == null) {
             return;
         }
 
-        int autotorch = Integer.parseInt(PythonProxy.globalMap.getOrDefault("autotorch", "0"));
-        if (autotorch == 0) {
+        int autoplant = Integer.parseInt(PythonProxy.globalMap.getOrDefault("autoplant", "0"));
+        if (autoplant == 0) {
             return;
         }
 
@@ -79,27 +80,16 @@ public abstract class AutoTorchMixin {
             return;
         }
 
-        PythonProxy.globalMap.put("autoplace_cooldown", String.valueOf(coolDownNow));
-
-        boolean offHandReady = false;
-
-        ItemStack offHandItemStack = player.getOffHandStack();
-        Item offHandItem = offHandItemStack.getItem();
-
-        if(offHandItemStack.getCount() != 0 && Registry.ITEM.getId(offHandItem).toString().equals("minecraft:torch")){
-            offHandReady = true;
-        }
-
         boolean mainHandReady = false;
 
         ItemStack mainHandItemStack = player.getMainHandStack();
         Item mainHandItem = mainHandItemStack.getItem();
 
-        if(mainHandItemStack.getCount() != 0 && Registry.ITEM.getId(mainHandItem).toString().equals("minecraft:torch")){
+        if(mainHandItemStack.getCount() != 0 && Registry.ITEM.getId(mainHandItem).toString().equals("minecraft:spruce_sapling")){
             mainHandReady = true;
         }
 
-        if(!offHandReady && !mainHandReady){
+        if(!mainHandReady){
             return;
         }
 
@@ -107,8 +97,10 @@ public abstract class AutoTorchMixin {
         Vec3d playerEyePosStanding = new Vec3d(player.getX(), player.getY() + player.getEyeHeight(EntityPose.STANDING), player.getZ());
         Vec3d playerEyePosCrouching = new Vec3d(player.getX(), player.getY() + player.getEyeHeight(EntityPose.CROUCHING), player.getZ());
 
-        List<BlockPos> list = new LinkedList<>();
-        for(int i = -6; i <= 6; i++){
+        boolean found = false;
+        BlockPos foundBlockPos = null;
+
+        for(int i = -5; i <= 5; i++){
             int j_bound = (int) sqrt(36 - i * i);
             for(int j = -j_bound; j <= j_bound; j++){
                 int k_bound = (int) sqrt(36 - i * i - j * j);
@@ -129,11 +121,7 @@ public abstract class AutoTorchMixin {
 
                     BlockState blockState = world.getBlockState(blockPos);
 
-                    if (!blockState.isOpaque()){
-                        continue;
-                    }
-
-                    if(!Block.sideCoversSmallSquare(world, blockPos, Direction.UP)){
+                    if(!Registry.BLOCK.getId(blockState.getBlock()).getPath().equals("podzol")){
                         continue;
                     }
 
@@ -143,65 +131,28 @@ public abstract class AutoTorchMixin {
                         continue;
                     }
 
-                    BlockState blockState_up_up = world.getBlockState(blockPos.add(0, 2, 0));
-
-                    if(blockState_up_up.isOpaque()){
-                        continue;
-                    }
-
-                    list.add(blockPos);
+                    found = true;
+                    foundBlockPos = blockPos;
                 }
             }
         }
 
-        Collections.shuffle(list);
         if(client.world == null){
             return;
         }
 
-        boolean found = false;
-        BlockPos foundBlockPos = null;
-        BlockState foundBlockState = null;
-        for(BlockPos blockPos: list){
-            if(view.getLightLevel(blockPos.add(0, 1, 0)) <= 8){
-                found = true;
-                foundBlockPos = blockPos;
-                foundBlockState = world.getBlockState(foundBlockPos);
-
-                PythonProxy.logger.info(String.format("Found block: %d %d %d", blockPos.getX(), blockPos.getY(), blockPos.getZ()));
-                break;
-            }
-        }
-
-        boolean blockMayInteract = false;
-        if(found && MayInteract.blockMayInteract(foundBlockState.getBlock())){
-            blockMayInteract = true;
-        }
-
         if(found) {
+            PythonProxy.globalMap.put("autoplace_cooldown", String.valueOf(coolDownNow));
+
             if(client.interactionManager != null) {
                 PythonProxy.globalMap.put("autoplace_cancel_interaction", "True");
 
-                if(blockMayInteract) {
-                    player.networkHandler.sendPacket(new ClientCommandC2SPacket(player, ClientCommandC2SPacket.Mode.PRESS_SHIFT_KEY));
-                }
-
-                Hand hand;
-                if(offHandReady){
-                    hand = Hand.OFF_HAND;
-                }else{
-                    hand = Hand.MAIN_HAND;
-                }
-
-                client.interactionManager.interactBlock(player, client.world, hand, new BlockHitResult(new Vec3d(foundBlockPos.getX() + 0.5, foundBlockPos.getY() + 1, foundBlockPos.getZ() + 0.5), Direction.UP, foundBlockPos, false));
-
-                if(blockMayInteract) {
-                    player.networkHandler.sendPacket(new ClientCommandC2SPacket(player, ClientCommandC2SPacket.Mode.RELEASE_SHIFT_KEY));
-                }
+                client.interactionManager.interactBlock(player, client.world, Hand.MAIN_HAND, new BlockHitResult(new Vec3d(foundBlockPos.getX() + 0.5, foundBlockPos.getY() + 1, foundBlockPos.getZ() + 0.5), Direction.UP, foundBlockPos, false));
 
                 PythonProxy.globalMap.put("autoplace_cancel_interaction", "False");
-                player.sendMessage(Text.of("Torch placed"), true);
             }
+        }else{
+            player.sendMessage(Text.of("Go ahead"), true);
         }
     }
 }

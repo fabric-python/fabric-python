@@ -30,7 +30,9 @@
     "AutoFeedPigMixin",
     "AutoFeedCowMixin",
     "AutoLanternMixin",
-    "AutoBuildMixin"
+    "AutoBuildMixin",
+    "AutoPlantMixin",
+    "AutoLavaMixin"
   ],
   "server": [],
   "injectors": {
