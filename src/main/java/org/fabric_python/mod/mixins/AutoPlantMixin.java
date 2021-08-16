@@ -174,6 +174,7 @@ public abstract class AutoPlantMixin {
                 PythonProxy.globalMap.put("autoplace_cancel_interaction", "True");
 
                 client.interactionManager.interactBlock(player, client.world, Hand.MAIN_HAND, new BlockHitResult(new Vec3d(foundBlockPos.getX() + 0.5, foundBlockPos.getY() + 1, foundBlockPos.getZ() + 0.5), Direction.UP, foundBlockPos, false));
+
                 PythonProxy.globalMap.put("autoplace_cooldown", String.valueOf(coolDownNow));
 
                 PythonProxy.globalMap.put("last_plant_time", String.valueOf(coolDownNow));
@@ -197,6 +198,10 @@ public abstract class AutoPlantMixin {
                         }
                     }
                 }
+
+                PythonProxy.globalMap.put("autoplace_cancel_interaction", "False");
+
+                player.sendMessage(Text.of("Planting"), true);
             }
         }else{
             player.sendMessage(Text.of("Go ahead"), true);
