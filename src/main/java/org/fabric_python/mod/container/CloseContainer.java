@@ -2,6 +2,7 @@ package org.fabric_python.mod.container;
 
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.ingame.GenericContainerScreen;
+import net.minecraft.client.gui.screen.ingame.ShulkerBoxScreen;
 import net.minecraft.client.network.ClientPlayerEntity;
 import org.fabric_python.mod.PythonProxy;
 import org.fabric_python.mod.TaskWorker;
@@ -23,6 +24,10 @@ public class CloseContainer implements TaskWorker {
         player.currentScreenHandler.close(player);
 
         if(client.currentScreen instanceof GenericContainerScreen){
+            client.currentScreen.onClose();
+        }
+
+        if(client.currentScreen instanceof ShulkerBoxScreen){
             client.currentScreen.onClose();
         }
 

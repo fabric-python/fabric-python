@@ -29,7 +29,8 @@ public abstract class StatusEffectMixin extends Entity  {
             int speed = Integer.parseInt(PythonProxy.globalMap.getOrDefault("speed", "2"));
             int haste = Integer.parseInt(PythonProxy.globalMap.getOrDefault("haste", "1"));
             int jumpboost = Integer.parseInt(PythonProxy.globalMap.getOrDefault("jumpboost", "2"));
-            int leviation = Integer.parseInt(PythonProxy.globalMap.getOrDefault("leviation", "0"));
+            int levitation = Integer.parseInt(PythonProxy.globalMap.getOrDefault("levitation", "0"));
+            int levitation_fixy = Integer.parseInt(PythonProxy.globalMap.getOrDefault("levitation_fixy", "0"));
 
             if (isNVon) {
                 if (effect == StatusEffects.NIGHT_VISION) {
@@ -71,9 +72,13 @@ public abstract class StatusEffectMixin extends Entity  {
                 }
             }
 
-            if(leviation > 0){
+            if(levitation > 0 || levitation_fixy > 0){
                 if(effect == StatusEffects.LEVITATION){
-                    info.setReturnValue(new StatusEffectInstance(StatusEffects.LEVITATION, 600, leviation - 1));
+                    if(levitation > 0) {
+                        info.setReturnValue(new StatusEffectInstance(StatusEffects.LEVITATION, 600, levitation - 1));
+                    }else{
+                        info.setReturnValue(new StatusEffectInstance(StatusEffects.LEVITATION, 600, levitation_fixy - 1));
+                    }
                 }
             }
         }
@@ -86,7 +91,8 @@ public abstract class StatusEffectMixin extends Entity  {
             int speed = Integer.parseInt(PythonProxy.globalMap.getOrDefault("speed", "2"));
             int haste = Integer.parseInt(PythonProxy.globalMap.getOrDefault("haste", "1"));
             int jumpboost = Integer.parseInt(PythonProxy.globalMap.getOrDefault("jumpboost", "1"));
-            int leviation = Integer.parseInt(PythonProxy.globalMap.getOrDefault("leviation", "0"));
+            int levitation = Integer.parseInt(PythonProxy.globalMap.getOrDefault("levitation", "0"));
+            int levitation_fixy = Integer.parseInt(PythonProxy.globalMap.getOrDefault("levitation_fixy", "0"));
 
             if (isNVon) {
                 if (effect == StatusEffects.NIGHT_VISION) {
@@ -112,7 +118,7 @@ public abstract class StatusEffectMixin extends Entity  {
                 }
             }
 
-            if(leviation > 0){
+            if(levitation > 0 || levitation_fixy > 0){
                 if(effect == StatusEffects.LEVITATION){
                     info.setReturnValue(true);
                 }

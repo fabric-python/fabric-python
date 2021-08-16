@@ -32,7 +32,9 @@
     "AutoLanternMixin",
     "AutoBuildMixin",
     "AutoPlantMixin",
-    "AutoLavaMixin"
+    "AutoLavaMixin",
+    "FixYMixin",
+    "CountGuardianMixin"
   ],
   "server": [],
   "injectors": {

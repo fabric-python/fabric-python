@@ -15,7 +15,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.function.Predicate;
 
-public class Attack implements TaskWorker {
+public class AttackEntity implements TaskWorker {
     @Override
     public void onTask(MinecraftClient client, Map<String, String> info) {
         double x = Double.parseDouble(info.getOrDefault("x", String.valueOf(0.0)));

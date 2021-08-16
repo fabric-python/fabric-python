@@ -15,7 +15,7 @@ import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.hit.HitResult;
 import net.minecraft.util.math.*;
 import net.minecraft.util.registry.Registry;
-import net.minecraft.world.RayTraceContext;
+import net.minecraft.world.RaycastContext;
 import net.minecraft.world.World;
 import org.fabric_python.mod.PythonProxy;
 import org.spongepowered.asm.mixin.Mixin;
@@ -131,6 +131,6 @@ public abstract class AutoLavaMixin {
         float float_7 = float_4 * float_5;
         float float_9 = float_3 * float_5;
         Vec3d vec3d_2 = vec3d_1.add((double)float_7 * 5.0D, (double)float_6 * 5.0D, (double)float_9 * 5.0D);
-        return world_1.rayTrace(new RayTraceContext(vec3d_1, vec3d_2, RayTraceContext.ShapeType.OUTLINE, RayTraceContext.FluidHandling.SOURCE_ONLY, playerEntity_1));
+        return world_1.raycast(new RaycastContext(vec3d_1, vec3d_2, RaycastContext.ShapeType.OUTLINE, RaycastContext.FluidHandling.SOURCE_ONLY, playerEntity_1));
     }
 }

@@ -2,6 +2,9 @@ package org.fabric_python.mod.mixins;
 
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayerEntity;
+import net.minecraft.client.world.ClientWorld;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.SpawnGroup;
 import net.minecraft.entity.attribute.EntityAttribute;
 import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.entity.passive.PigEntity;
@@ -13,6 +16,8 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.time.Instant;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Scanner;
 
 @Mixin(ClientPlayerEntity.class)
@@ -336,29 +341,29 @@ public class ChatMessageMixin {
                 return;
             }
 
-            if(msg.startsWith("/leviation")) {
-                if(msg.startsWith("/leviation 2")){
-                    PythonProxy.globalMap.put("leviation", "2");
-                }else if(msg.startsWith("/leviation 1")){
-                    PythonProxy.globalMap.put("leviation", "1");
-                }else if(msg.startsWith("/leviation 0")){
-                    PythonProxy.globalMap.put("leviation", "0");
+            if(msg.startsWith("/levitation")) {
+                if(msg.startsWith("/levitation 2")){
+                    PythonProxy.globalMap.put("levitation", "2");
+                }else if(msg.startsWith("/levitation 1")){
+                    PythonProxy.globalMap.put("levitation", "1");
+                }else if(msg.startsWith("/levitation 0")){
+                    PythonProxy.globalMap.put("levitation", "0");
                 }else {
-                    int currentLeviation = Integer.parseInt(PythonProxy.globalMap.getOrDefault("leviation", "0"));
-                    if(currentLeviation == 0){
-                        PythonProxy.globalMap.put("leviation", "1");
+                    int currentlevitation = Integer.parseInt(PythonProxy.globalMap.getOrDefault("levitation", "0"));
+                    if(currentlevitation == 0){
+                        PythonProxy.globalMap.put("levitation", "1");
                     }else{
-                        PythonProxy.globalMap.put("leviation", "0");
+                        PythonProxy.globalMap.put("levitation", "0");
                     }
 
                     MinecraftClient client = MinecraftClient.getInstance();
                     ClientPlayerEntity player = client.player;
 
                     if (player != null) {
-                        if (currentLeviation == 0) {
-                            player.sendMessage(Text.of("Leviation is on."), false);
+                        if (currentlevitation == 0) {
+                            player.sendMessage(Text.of("levitation is on."), false);
                         } else {
-                            player.sendMessage(Text.of("Leviation is off."), false);
+                            player.sendMessage(Text.of("levitation is off."), false);
                         }
                     }
                 }
@@ -444,7 +449,7 @@ public class ChatMessageMixin {
             }
 
             if (msg.startsWith("/safefall")) {
-                int currentSafeFall = Integer.parseInt(PythonProxy.globalMap.getOrDefault("safefall", "0"));
+                int currentSafeFall = Integer.parseInt(PythonProxy.globalMap.getOrDefault("safefall", "1"));
                 PythonProxy.globalMap.put("safefall", String.valueOf(1 - currentSafeFall));
 
                 MinecraftClient client = MinecraftClient.getInstance();
@@ -588,6 +593,80 @@ public class ChatMessageMixin {
                         player.sendMessage(Text.of("Autoplant is on."), false);
                     }else{
                         player.sendMessage(Text.of("Autoplant is off."), false);
+                    }
+                }
+
+                info.cancel();
+                return;
+            }
+            if(msg.startsWith("/worldtime")) {
+                MinecraftClient client = MinecraftClient.getInstance();
+                ClientPlayerEntity player = client.player;
+
+                if(player != null) {
+                    ClientWorld world = player.clientWorld;
+                    player.sendMessage(Text.of(String.format("The world time is %d. This number would be incorrect for Paper.", world.getLevelProperties().getTime())), false);
+                }
+
+                info.cancel();
+            }
+
+            if(msg.startsWith("/querymob")) {
+                MinecraftClient client = MinecraftClient.getInstance();
+                ClientWorld world = client.world;
+                ClientPlayerEntity player = client.player;
+                if(world != null && player != null) {
+                    HashMap<String, Integer> count = new HashMap<>();
+                    for(Entity entity : world.getEntities()){
+                        if(entity.getType().getSpawnGroup() == SpawnGroup.MONSTER){
+                            String name = entity.getType().getTranslationKey();
+                            Integer cur = count.getOrDefault(name, 0);
+                            count.put(name, cur + 1);
+                        }
+                    }
+
+                    for(Map.Entry<String, Integer> entry : count.entrySet()) {
+                        player.sendMessage(Text.of(String.format("%s: %d", entry.getKey(), entry.getValue())), false);
+                    }
+                }
+
+                info.cancel();
+            }
+
+            if(msg.startsWith("/countguardian")) {
+                int currentCountGuardian = Integer.parseInt(PythonProxy.globalMap.getOrDefault("countguardian", "0"));
+                PythonProxy.globalMap.put("countguardian", String.valueOf(1 - currentCountGuardian));
+
+                MinecraftClient client = MinecraftClient.getInstance();
+                ClientPlayerEntity player = client.player;
+
+                if (player != null) {
+                    if (currentCountGuardian == 0) {
+                        PythonProxy.globalMap.getOrDefault("last_guardian_update", String.valueOf(Instant.now().getEpochSecond()));
+                        player.sendMessage(Text.of("CountGuardian is on."), false);
+                    }else{
+                        player.sendMessage(Text.of("CountGuardian is off."), false);
+                    }
+                }
+
+                info.cancel();
+                return;
+            }
+
+            if(msg.startsWith("/fixy")) {
+                double currentFixY = Double.parseDouble(PythonProxy.globalMap.getOrDefault("fixy", "0.0"));
+
+                MinecraftClient client = MinecraftClient.getInstance();
+                ClientPlayerEntity player = client.player;
+
+                if (player != null) {
+                    if (currentFixY == 0.0) {
+                        PythonProxy.globalMap.put("fixy", String.valueOf(player.getPos().getY()));
+                        player.sendMessage(Text.of("FixY is on."), false);
+                    }else{
+                        PythonProxy.globalMap.put("fixy", "0.0");
+                        PythonProxy.globalMap.put("levitation_fixy", "0");
+                        player.sendMessage(Text.of("FixY is off."), false);
                     }
                 }
 

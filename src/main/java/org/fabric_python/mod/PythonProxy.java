@@ -2,19 +2,19 @@ package org.fabric_python.mod;
 
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
-import net.minecraft.block.NetherrackBlock;
-import net.minecraft.util.registry.Registry;
-import py4j.GatewayServer;
 
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import static java.util.UUID.randomUUID;
+
+import py4j.GatewayServer;
 
 @SuppressWarnings("unused")
 public class PythonProxy implements ClientModInitializer {
@@ -23,6 +23,8 @@ public class PythonProxy implements ClientModInitializer {
 	public static Outbox outbox;
 	public static Set<String> noRenderList;
 	public static Map<String, String> globalMap;
+	public static final ConcurrentHashMap<Long, Integer> guardianCount = new ConcurrentHashMap<>();
+	public static Map<String, String> loadedLectern;
 	public static Logger logger = LogManager.getFormatterLogger("Fabric-Python");
 
 	public static PythonProxy getInstance(){
@@ -48,6 +50,7 @@ public class PythonProxy implements ClientModInitializer {
 		noRenderList.add("andesite");
 
 		globalMap = new HashMap<>();
+		loadedLectern = new HashMap<>();
 
 		inbox.addWorker("find_safe_mine_block", new org.fabric_python.mod.block.FindSafeMineBlock());
 		inbox.addWorker("start_mine", new org.fabric_python.mod.block.StartMine());
@@ -57,19 +60,21 @@ public class PythonProxy implements ClientModInitializer {
 		inbox.addWorker("close_container", new org.fabric_python.mod.container.CloseContainer());
 		inbox.addWorker("register_chests", new org.fabric_python.mod.container.RegisterChests());
 		inbox.addWorker("nospace", new org.fabric_python.mod.container.NoSpace());
+		inbox.addWorker("move_items_in_shulker_box", new org.fabric_python.mod.container.MoveItemsInShulkerBox());
 
-		inbox.addWorker("attack", new org.fabric_python.mod.player.Attack());
+		inbox.addWorker("attack_entity", new  org.fabric_python.mod.player.AttackEntity());
 		inbox.addWorker("hungry", new org.fabric_python.mod.player.Hungry());
 		inbox.addWorker("switch_items", new org.fabric_python.mod.player.SwitchItems());
 		inbox.addWorker("use_item", new org.fabric_python.mod.player.UseItem());
 		inbox.addWorker("use_block", new org.fabric_python.mod.player.UseBlock());
+		inbox.addWorker("attack_block", new org.fabric_python.mod.player.AttackBlock());
 		inbox.addWorker("move", new org.fabric_python.mod.player.Move());
 		inbox.addWorker("rowing", new org.fabric_python.mod.player.Rowing());
 		inbox.addWorker("send_chat_message", new org.fabric_python.mod.player.SendChatMessage());
 
 		inbox.addWorker("nearby_mods", new org.fabric_python.mod.world.NearbyMods());
 
-		GatewayServer gatewayServer = new GatewayServer(new PythonProxy());
+		GatewayServer gatewayServer = new GatewayServer(this);
 		gatewayServer.start();
 
 		getLogger().info("Fabric-Python has been initialized");

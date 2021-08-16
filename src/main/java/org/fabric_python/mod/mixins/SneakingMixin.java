@@ -35,7 +35,7 @@ public abstract class SneakingMixin {
             double var7 = 0.05D;
 
 
-            while (double_1 != 0.0D && player.world.doesNotCollide(player, player.getBoundingBox().offset(double_1, (double) (-player.stepHeight), 0.0D))) {
+            while (double_1 != 0.0D && player.world.isSpaceEmpty(player, player.getBoundingBox().offset(double_1, (double) (-player.stepHeight), 0.0D))) {
                 if (double_1 < 0.05D && double_1 >= -0.05D) {
                     double_1 = 0.0D;
                 } else if (double_1 > 0.0D) {
@@ -45,7 +45,7 @@ public abstract class SneakingMixin {
                 }
             }
 
-            while (double_2 != 0.0D && player.world.doesNotCollide(player, player.getBoundingBox().offset(0.0D, (double) (-player.stepHeight), double_2))) {
+            while (double_2 != 0.0D && player.world.isSpaceEmpty(player, player.getBoundingBox().offset(0.0D, (double) (-player.stepHeight), double_2))) {
                 if (double_2 < 0.05D && double_2 >= -0.05D) {
                     double_2 = 0.0D;
                 } else if (double_2 > 0.0D) {
@@ -55,7 +55,7 @@ public abstract class SneakingMixin {
                 }
             }
 
-            while (double_1 != 0.0D && double_2 != 0.0D && player.world.doesNotCollide(player, player.getBoundingBox().offset(double_1, (double) (-player.stepHeight), double_2))) {
+            while (double_1 != 0.0D && double_2 != 0.0D && player.world.isSpaceEmpty(player, player.getBoundingBox().offset(double_1, (double) (-player.stepHeight), double_2))) {
                 if (double_1 < 0.05D && double_1 >= -0.05D) {
                     double_1 = 0.0D;
                 } else if (double_1 > 0.0D) {

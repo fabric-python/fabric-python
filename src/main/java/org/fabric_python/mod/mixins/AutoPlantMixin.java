@@ -9,8 +9,11 @@ import net.minecraft.entity.EntityPose;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.packet.c2s.play.ClientCommandC2SPacket;
+import net.minecraft.screen.slot.Slot;
+import net.minecraft.screen.slot.SlotActionType;
 import net.minecraft.text.Text;
 import net.minecraft.util.Hand;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
@@ -28,9 +31,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.time.Instant;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 import static java.lang.Math.sqrt;
 
@@ -97,8 +98,7 @@ public abstract class AutoPlantMixin {
         Vec3d playerEyePosStanding = new Vec3d(player.getX(), player.getY() + player.getEyeHeight(EntityPose.STANDING), player.getZ());
         Vec3d playerEyePosCrouching = new Vec3d(player.getX(), player.getY() + player.getEyeHeight(EntityPose.CROUCHING), player.getZ());
 
-        boolean found = false;
-        BlockPos foundBlockPos = null;
+        LinkedList<BlockPos> potentialBlockPos = new LinkedList<>();
 
         for(int i = -5; i <= 5; i++){
             int j_bound = (int) sqrt(36 - i * i);
@@ -131,8 +131,7 @@ public abstract class AutoPlantMixin {
                         continue;
                     }
 
-                    found = true;
-                    foundBlockPos = blockPos;
+                    potentialBlockPos.add(blockPos);
                 }
             }
         }
@@ -141,15 +140,63 @@ public abstract class AutoPlantMixin {
             return;
         }
 
-        if(found) {
+        if(potentialBlockPos.size() > 0) {
+            double last_plant_time = Double.parseDouble(PythonProxy.globalMap.getOrDefault("last_plant_time", "0.0"));
+            int last_plant_x = Integer.parseInt(PythonProxy.globalMap.getOrDefault("last_plant_x", "0"));
+            int last_plant_y = Integer.parseInt(PythonProxy.globalMap.getOrDefault("last_plant_y", "0"));
+            int last_plant_z = Integer.parseInt(PythonProxy.globalMap.getOrDefault("last_plant_z", "0"));
+
+            BlockPos foundBlockPos = BlockPos.ORIGIN;
+
+            if((coolDownNow - last_plant_time) > 5.0) {
+                foundBlockPos = potentialBlockPos.getFirst();
+            }else{
+                Vec3i last_plant = new Vec3i(last_plant_x, last_plant_y, last_plant_z);
+
+                foundBlockPos = potentialBlockPos.getFirst();
+                double distance = foundBlockPos.getSquaredDistance(last_plant);
+
+                potentialBlockPos.removeFirst();
+
+                for(BlockPos pos : potentialBlockPos) {
+                    double cur_distance = pos.getSquaredDistance(last_plant);
+
+                    if(cur_distance < distance) {
+                        foundBlockPos = pos;
+                        distance = cur_distance;
+                    }
+                }
+            }
+
             PythonProxy.globalMap.put("autoplace_cooldown", String.valueOf(coolDownNow));
 
             if(client.interactionManager != null) {
                 PythonProxy.globalMap.put("autoplace_cancel_interaction", "True");
 
                 client.interactionManager.interactBlock(player, client.world, Hand.MAIN_HAND, new BlockHitResult(new Vec3d(foundBlockPos.getX() + 0.5, foundBlockPos.getY() + 1, foundBlockPos.getZ() + 0.5), Direction.UP, foundBlockPos, false));
+                PythonProxy.globalMap.put("autoplace_cooldown", String.valueOf(coolDownNow));
 
-                PythonProxy.globalMap.put("autoplace_cancel_interaction", "False");
+                PythonProxy.globalMap.put("last_plant_time", String.valueOf(coolDownNow));
+                PythonProxy.globalMap.put("last_plant_x", String.valueOf(foundBlockPos.getX()));
+                PythonProxy.globalMap.put("last_plant_y", String.valueOf(foundBlockPos.getY()));
+                PythonProxy.globalMap.put("last_plant_z", String.valueOf(foundBlockPos.getZ()));
+
+                player.sendMessage(Text.of("Planting..."), true);
+
+                if(player.getMainHandStack().getCount() == 0) {
+                    for (int i = 9; i <= 44; i++) {
+                        Slot cur_slot = player.playerScreenHandler.getSlot(i);
+                        if (cur_slot.hasStack() && cur_slot.getStack().getItem() == Registry.ITEM.get(new Identifier("spruce_sapling")) && cur_slot.getStack().getCount() >= 1) {
+                            if (i != 36) {
+                                assert client.interactionManager != null;
+                                client.interactionManager.clickSlot(player.playerScreenHandler.syncId, i, 0, SlotActionType.SWAP, player);
+                            }
+                            player.inventory.selectedSlot = 0;
+
+                            break;
+                        }
+                    }
+                }
             }
         }else{
             player.sendMessage(Text.of("Go ahead"), true);
